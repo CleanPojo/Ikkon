@@ -1,0 +1,23 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+    testImplementation "org.assertj:assertj-core:3.16.1"
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+        showCauses true
+        showExceptions true
+        showStackTraces true
+        exceptionFormat 'full'
+    }
+}
