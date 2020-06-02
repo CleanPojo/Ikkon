@@ -1,9 +1,11 @@
 package org.cleanpojo.ikkon;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.cleanpojo.ikkon.fixtures.Generator.create;
 
 import org.cleanpojo.ikkon.fixtures.ImmutableObject;
+import org.cleanpojo.ikkon.fixtures.MultipleConstructors;
 import org.cleanpojo.ikkon.fixtures.MutableObject;
 import org.junit.Test;
 
@@ -31,5 +33,17 @@ public class Mapper_specs {
         assertThat(actual).isNotNull();
         assertThat(actual.getId()).isEqualTo(source.getId());
         assertThat(actual.getName()).isEqualTo(source.getName());
+    }
+
+    @Test
+    public void fails_if_destination_type_has_multiple_constructors() {
+        var source = create(MutableObject.class);
+        var sut = new Mapper();
+
+        Throwable thrown = catchThrowable(() -> sut.map(source, MultipleConstructors.class));
+
+        assertThat(thrown)
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining(MultipleConstructors.class.getName());
     }
 }

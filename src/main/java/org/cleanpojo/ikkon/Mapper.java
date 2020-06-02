@@ -32,7 +32,13 @@ public class Mapper {
 
     private static <T> Constructor<?> getConstructor(Class<T> destination)
             throws NoSuchMethodException {
-        return destination.getConstructors()[0];
+        Constructor<?>[] constructors = destination.getConstructors();
+        if (constructors.length > 1) {
+            String message = "The type '" + destination.getName() + "' has multiple constructor.";
+            throw new RuntimeException(message);
+        }
+
+        return constructors[0];
     }
 
     private static Object[] resolveArguments(Object source, Constructor<?> constructor)
@@ -42,6 +48,7 @@ public class Mapper {
         for (int i = 0; i < parameters.length; i++) {
             arguments[i] = resolveArgument(source, parameters[i]);
         }
+
         return arguments;
     }
 
@@ -57,6 +64,7 @@ public class Mapper {
             String message = "The parameter does not have a name. Compile your code with '-parameters' option to include parameter names.";
             throw new RuntimeException(message);
         }
+
         return parameter.getName();
     }
 
