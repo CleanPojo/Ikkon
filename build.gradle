@@ -11,6 +11,10 @@ dependencies {
     testImplementation "org.assertj:assertj-core:3.16.1"
 }
 
+compileTestJava {
+    options.compilerArgs << '-parameters'
+}
+
 test {
     testLogging {
         events "passed", "skipped", "failed"

@@ -3,12 +3,13 @@ package org.cleanpojo.ikkon;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 public class Mapper {
 
     public <T> T map(Object source, Class<T> destination) {
         try {
-            T instance = createInstance(destination);
+            T instance = createInstance(source, destination);
             setProperties(source, instance);
             return instance;
         } catch (
@@ -22,15 +23,29 @@ public class Mapper {
         }
     }
 
-    private <T> T createInstance(Class<T> destination)
+    private <T> T createInstance(Object source, Class<T> destination)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        Constructor<T> constructor = getConstructor(destination);
-        return constructor.newInstance();
+        Constructor<?> constructor = getConstructor(destination);
+        Parameter[] parameters = constructor.getParameters();
+        var arguments = new Object[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter parameter = parameters[i];
+            if (parameter.isNamePresent() == false) {
+                String message = "The parameter does not have a name. Compile your code with '-parameters' option to include parameter names.";
+                throw new RuntimeException(message);
+            }
+            String propertyName = parameter.getName();
+            Method getter = findGetter(source.getClass(), propertyName);
+            if (getter != null) {
+                arguments[i] = getter.invoke(source);
+            }
+        }
+        return destination.cast(constructor.newInstance(arguments));
     }
 
-    private <T> Constructor<T> getConstructor(Class<T> destination)
+    private <T> Constructor<?> getConstructor(Class<T> destination)
             throws NoSuchMethodException {
-        return destination.getConstructor();
+        return destination.getConstructors()[0];
     }
 
     private <T> void setProperties(Object source, T instance)

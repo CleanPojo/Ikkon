@@ -12,9 +12,21 @@ public class Mapper_specs {
     @Test
     public void correctly_maps_immutable_object_to_mutable_object() {
         var source = create(ImmutableObject.class);
-        Mapper sut = new Mapper();
+        var sut = new Mapper();
 
         MutableObject actual = sut.map(source, MutableObject.class);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getId()).isEqualTo(source.getId());
+        assertThat(actual.getName()).isEqualTo(source.getName());
+    }
+
+    @Test
+    public void correctly_maps_mutable_object_to_immutable_object() {
+        var source = create(MutableObject.class);
+        var sut = new Mapper();
+
+        ImmutableObject actual = sut.map(source, ImmutableObject.class);
 
         assertThat(actual).isNotNull();
         assertThat(actual.getId()).isEqualTo(source.getId());
