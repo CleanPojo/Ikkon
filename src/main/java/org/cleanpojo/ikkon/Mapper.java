@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -65,13 +66,23 @@ public class Mapper {
     private static Object resolveArgument(Object source, Parameter parameter, Method getter)
             throws IllegalAccessException, InvocationTargetException {
         Object value = getter.invoke(source);
-        return parameter.getType().equals(Iterable.class) ? toList((Iterable<?>)value) : value;
+        return parameter.getType().equals(Iterable.class)
+            ? toIterable((Iterable<?>)value)
+            : parameter.getType().equals(Collection.class)
+            ? toList((Iterable<?>)value)
+            : value;
+    }
+
+    private static <T> Iterable<T> toIterable(Iterable<T> iterable) {
+        var list = new ArrayList<T>();
+        iterable.forEach(list::add);
+        return Collections.unmodifiableList(list);
     }
 
     private static <T> List<T> toList(Iterable<T> iterable) {
         var list = new ArrayList<T>();
         iterable.forEach(list::add);
-        return Collections.unmodifiableList(list);
+        return list;
     }
 
     private static String getParameterName(Parameter parameter) {
