@@ -2,7 +2,7 @@ package org.cleanpojo.ikkon.fixtures;
 
 import java.util.UUID;
 
-public class MutableObject {
+public class Mutable {
 
     private UUID id;
     private String name;

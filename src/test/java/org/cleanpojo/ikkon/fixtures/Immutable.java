@@ -2,16 +2,14 @@ package org.cleanpojo.ikkon.fixtures;
 
 import java.util.UUID;
 
-public class IterableProperty {
+public class Immutable {
 
     private final UUID id;
     private final String name;
-    private final Iterable<String> values;
 
-    public IterableProperty(final UUID id, final String name, final Iterable<String> values) {
+    public Immutable(final UUID id, final String name) {
         this.id = id;
         this.name = name;
-        this.values = values;
     }
 
     public UUID getId() {
@@ -20,9 +18,5 @@ public class IterableProperty {
 
     public String getName() {
         return name;
-    }
-
-    public Iterable<String> getValues() {
-        return values;
     }
 }
