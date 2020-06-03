@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.cleanpojo.ikkon.fixtures.Generator.create;
 
-import org.cleanpojo.ikkon.fixtures.ImmutableObject;
-import org.cleanpojo.ikkon.fixtures.MultipleConstructors;
-import org.cleanpojo.ikkon.fixtures.MutableObject;
+import org.cleanpojo.ikkon.fixtures.*;
 import org.junit.Test;
 
 public class Mapper_specs {
@@ -45,5 +43,16 @@ public class Mapper_specs {
         assertThat(thrown)
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining(MultipleConstructors.class.getName());
+    }
+
+    @Test
+    public void correctly_maps_iterable_property() {
+        var source = create(IterableProperty.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, IterableProperty.class);
+
+        assertThat(actual.getValues()).isNotSameAs(source.getValues());
+        assertThat(actual.getValues()).isEqualTo(source.getValues());
     }
 }

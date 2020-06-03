@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Mapper {
 
@@ -56,7 +58,23 @@ public class Mapper {
             throws IllegalAccessException, InvocationTargetException {
         String propertyName = getParameterName(parameter);
         Method getter = findGetter(source.getClass(), propertyName);
-        return getter == null ? null : getter.invoke(source);
+        if (getter == null) {
+            return null;
+        } else {
+            Object value = getter.invoke(source);
+            if (parameter.getType().equals(Iterable.class)) {
+                Iterable<?> iterable = (Iterable<?>)value;
+                return copy(iterable);
+            } else {
+                return value;
+            }
+        }
+    }
+
+    private static <T> List<T> copy(Iterable<T> iterable) {
+        var list = new ArrayList<T>();
+        iterable.forEach(list::add);
+        return list;
     }
 
     private static String getParameterName(Parameter parameter) {

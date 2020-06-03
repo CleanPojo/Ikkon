@@ -6,8 +6,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -70,9 +73,22 @@ public final class Generator {
         Parameter[] parameters = constructor.getParameters();
         var arguments = new Object[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
-            arguments[i] = create(parameters[i].getType());
+            arguments[i] = generateArgument(parameters[i]);
         }
         return arguments;
+    }
+
+    private static Object generateArgument(Parameter parameter) {
+        Class<?> type = parameter.getType();
+        return type.equals(Iterable.class)
+            ? generateList((ParameterizedType)parameter.getParameterizedType())
+            : create(type);
+    }
+
+    private static Object generateList(ParameterizedType parameterizedType) {
+        Type typeArgument = parameterizedType.getActualTypeArguments()[0];
+        Class<?> t = Class.class.cast(typeArgument);
+        return List.of(create(t), create(t), create(t));
     }
     
     private static <T> void setProperties(T instance, Class<T> type)
