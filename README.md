@@ -35,7 +35,10 @@ public class Destination {
 }
 
 var source = new Source(UUID.randomUUID(), "foo");
-var destination = new Mapper().map(source, Destination.class);
+
+var mapper = new Mapper();
+
+var destination = mapper.map(source, Destination.class);
 ```
 
 ### Mutable object to immutable object
@@ -68,6 +71,11 @@ public class Destination {
     }
 }
 
-var source = new Source(UUID.randomUUID(), "foo");
-var destination = new Mapper().map(source, Destination.class);
+var source = new Source();
+source.setId(UUID.randomUUID());
+source.setName("foo");
+
+var mapper = new Mapper();
+
+var destination = mapper.map(source, Destination.class);
 ```
