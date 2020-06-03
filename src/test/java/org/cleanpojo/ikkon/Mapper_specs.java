@@ -98,4 +98,15 @@ public class Mapper_specs {
 
         assertThat(actual.isFrozen()).isEqualTo(source.isFrozen());
     }
+
+    @Test
+    public void correctly_maps_complex_object_property() {
+        var source = create(ComplexObjectProperty.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, ComplexObjectProperty.class);
+
+        assertThat(actual.getChild()).isNotSameAs(source.getChild());
+        assertThat(actual.getChild()).isEqualToComparingFieldByField(source.getChild());
+    }
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class Mapper {
 
@@ -27,7 +28,7 @@ public class Mapper {
         }
     }
 
-    private static <T> T createInstance(Object source, Class<T> destination)
+    private <T> T createInstance(Object source, Class<T> destination)
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Constructor<?> constructor = getConstructor(destination);
         Object[] arguments = resolveArguments(source, constructor);
@@ -45,7 +46,7 @@ public class Mapper {
         return constructors[0];
     }
 
-    private static Object[] resolveArguments(Object source, Constructor<?> constructor)
+    private Object[] resolveArguments(Object source, Constructor<?> constructor)
             throws IllegalAccessException, InvocationTargetException {
         Parameter[] parameters = constructor.getParameters();
         var arguments = new Object[parameters.length];
@@ -56,22 +57,25 @@ public class Mapper {
         return arguments;
     }
 
-    private static Object resolveArgument(Object source, Parameter parameter)
+    private Object resolveArgument(Object source, Parameter parameter)
             throws IllegalAccessException, InvocationTargetException {
         String propertyName = getParameterName(parameter);
         Method getter = findGetter(source.getClass(), propertyName);
         return getter == null ? null : resolveArgument(source, parameter, getter);
     }
 
-    private static Object resolveArgument(Object source, Parameter parameter, Method getter)
+    private Object resolveArgument(Object source, Parameter parameter, Method getter)
             throws IllegalAccessException, InvocationTargetException {
+        Class<?> parameterType = parameter.getType();
         Object value = getter.invoke(source);
-        return parameter.getType().equals(Iterable.class)
+        return parameterType.equals(Iterable.class)
             ? toIterable((Iterable<?>)value)
-            : parameter.getType().equals(Collection.class)
+            : parameterType.equals(Collection.class)
             ? toList((Iterable<?>)value)
-            : parameter.getType().equals(List.class)
+            : parameterType.equals(List.class)
             ? toList((Iterable<?>)value)
+            : isComplexType(parameterType)
+            ? map(value, value.getClass())
             : value;
     }
 
@@ -87,6 +91,12 @@ public class Mapper {
         return list;
     }
 
+    private static boolean isComplexType(Class<?> type) {
+        return type.isPrimitive() == false
+            && type.equals(String.class) == false
+            && type.equals(UUID.class) == false;
+    }
+
     private static String getParameterName(Parameter parameter) {
         if (parameter.isNamePresent() == false) {
             String message = "The parameter does not have a name. Compile your code with '-parameters' option to include parameter names.";
@@ -96,7 +106,7 @@ public class Mapper {
         return parameter.getName();
     }
 
-    private static <T> void setProperties(Object source, T instance)
+    private <T> void setProperties(Object source, T instance)
             throws IllegalAccessException, InvocationTargetException {
         for (Method method : instance.getClass().getMethods()) {
             if (isSetter(method)) {
@@ -110,7 +120,7 @@ public class Mapper {
         return method.getName().startsWith("set");
     }
 
-    private static <T> void setProperty(Object source, T instance, Method setter)
+    private <T> void setProperty(Object source, T instance, Method setter)
             throws IllegalAccessException, InvocationTargetException {
         String propertyName = setter.getName().substring(3);
         Method getter = findGetter(source.getClass(), propertyName);
