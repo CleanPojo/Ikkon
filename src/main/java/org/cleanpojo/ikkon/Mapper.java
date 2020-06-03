@@ -102,7 +102,8 @@ public class Mapper {
         String propertyName = setter.getName().substring(3);
         Method getter = findGetter(source.getClass(), propertyName);
         if (getter != null) {
-            setter.invoke(instance, getter.invoke(source));
+            Parameter parameter = setter.getParameters()[0];
+            setter.invoke(instance, resolveArgument(source, parameter, getter));
         }
     }
 

@@ -102,13 +102,13 @@ public final class Generator {
     
     private static boolean isSetter(Method method) {
         return method.getName().startsWith("set")
-        && method.getReturnType().equals(void.class)
-        && method.getParameterCount() == 1;
+            && method.getReturnType().equals(void.class)
+            && method.getParameterCount() == 1;
     }
 
     private static <T> void setProperty(T instance, Method setter)
             throws IllegalAccessException, InvocationTargetException {
-        Class<?> propertyType = setter.getParameters()[0].getType();
-        setter.invoke(instance, create(propertyType));
+        Parameter parameter = setter.getParameters()[0];
+        setter.invoke(instance, generateArgument(parameter));
     }
 }
