@@ -124,6 +124,8 @@ public class Mapper {
         for (Method method : type.getMethods()) {
             if (method.getName().equalsIgnoreCase("get" + propertyName)) {
                 return method;
+            } else if (method.getName().equalsIgnoreCase("is" + propertyName)) {
+                return method;
             }
         }
 

@@ -88,4 +88,14 @@ public class Mapper_specs {
         assertThat(actual.getValues()).isNotSameAs(source.getValues());
         assertThat(actual.getValues()).isEqualTo(source.getValues());
     }
+
+    @Test
+    public void supports_is_prefix_for_boolean_property() {
+        var source = create(Freezable.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, Freezable.class);
+
+        assertThat(actual.isFrozen()).isEqualTo(source.isFrozen());
+    }
 }
