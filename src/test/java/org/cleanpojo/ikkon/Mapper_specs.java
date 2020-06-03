@@ -68,6 +68,17 @@ public class Mapper_specs {
     }
 
     @Test
+    public void correctly_maps_iterable_property_to_immutable_list_property() {
+        var source = create(ImmutableIterableProperty.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, ImmutableListProperty.class);
+
+        assertThat(actual.getValues()).isNotSameAs(source.getValues());
+        assertThat(actual.getValues()).isEqualTo(source.getValues());
+    }
+
+    @Test
     public void correctly_maps_mutable_iterable_property() {
         var source = create(MutableIterableProperty.class);
         var sut = new Mapper();

@@ -70,6 +70,8 @@ public class Mapper {
             ? toIterable((Iterable<?>)value)
             : parameter.getType().equals(Collection.class)
             ? toList((Iterable<?>)value)
+            : parameter.getType().equals(List.class)
+            ? toList((Iterable<?>)value)
             : value;
     }
 
