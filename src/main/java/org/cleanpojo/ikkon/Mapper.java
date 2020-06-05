@@ -1,5 +1,6 @@
 package org.cleanpojo.ikkon;
 
+import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -48,13 +49,29 @@ public class Mapper {
 
     private Object[] resolveArguments(Object source, Constructor<?> constructor)
             throws IllegalAccessException, InvocationTargetException {
-        Parameter[] parameters = constructor.getParameters();
-        var arguments = new Object[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            arguments[i] = resolveArgument(source, parameters[i]);
-        }
 
-        return arguments;
+        ConstructorProperties constructorProperties = constructor.getAnnotation(ConstructorProperties.class);
+        if (constructorProperties != null) {
+            Parameter[] parameters = constructor.getParameters();
+            String[] names = constructorProperties.value();
+            var arguments = new Object[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                String propertyName = names[i];
+                Method getter = findGetter(source.getClass(), propertyName);
+                Parameter parameter = parameters[i];
+                arguments[i] = getter == null ? null : resolveArgument(source, parameter, getter);
+            }
+
+            return arguments;
+        } else {
+            Parameter[] parameters = constructor.getParameters();
+            var arguments = new Object[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                arguments[i] = resolveArgument(source, parameters[i]);
+            }
+
+            return arguments;
+        }
     }
 
     private Object resolveArgument(Object source, Parameter parameter)

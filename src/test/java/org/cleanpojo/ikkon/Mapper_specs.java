@@ -109,4 +109,16 @@ public class Mapper_specs {
         assertThat(actual.getChild()).isNotSameAs(source.getChild());
         assertThat(actual.getChild()).isEqualToComparingFieldByField(source.getChild());
     }
+
+    @Test
+    public void supports_ConstructorProperties_annotation() {
+        var source = create(Immutable.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, DecoratedWithConstructorProperties.class);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getId()).isEqualTo(source.getId());
+        assertThat(actual.getName()).isEqualTo(source.getName());
+    }
 }
