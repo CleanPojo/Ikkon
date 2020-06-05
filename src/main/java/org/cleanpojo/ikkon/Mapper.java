@@ -83,7 +83,7 @@ public class Mapper {
     private Object resolveArgument(Object source, Parameter parameter,
             String propertyName)
             throws IllegalAccessException, InvocationTargetException {
-        Method getter = findGetter(source.getClass(), propertyName);
+        Method getter = GetterFinder.find(propertyName, source.getClass());
         return getter == null ? null : resolveArgument(source, parameter, getter);
     }
 
@@ -146,25 +146,10 @@ public class Mapper {
     private <T> void setProperty(Object source, T instance, Method setter)
             throws IllegalAccessException, InvocationTargetException {
         String propertyName = setter.getName().substring(3);
-        Method getter = findGetter(source.getClass(), propertyName);
+        Method getter = GetterFinder.find(propertyName, source.getClass());
         if (getter != null) {
             Parameter parameter = setter.getParameters()[0];
             setter.invoke(instance, resolveArgument(source, parameter, getter));
         }
-    }
-
-    private static Method findGetter(Class<?> type, String propertyName) {
-        for (Method method : type.getMethods()) {
-            if (method.getName().equalsIgnoreCase("get" + propertyName)) {
-                return method;
-            } else if (method.getName().equalsIgnoreCase("is" + propertyName)) {
-                if (method.getReturnType().equals(boolean.class))
-                    return method;
-                else
-                    return null;
-            }
-        }
-
-        return null;
     }
 }
