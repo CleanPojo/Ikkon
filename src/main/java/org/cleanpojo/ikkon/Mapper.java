@@ -158,7 +158,10 @@ public class Mapper {
             if (method.getName().equalsIgnoreCase("get" + propertyName)) {
                 return method;
             } else if (method.getName().equalsIgnoreCase("is" + propertyName)) {
-                return method;
+                if (method.getReturnType().equals(boolean.class))
+                    return method;
+                else
+                    return null;
             }
         }
 

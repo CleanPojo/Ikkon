@@ -121,4 +121,14 @@ public class Mapper_specs {
         assertThat(actual.getId()).isEqualTo(source.getId());
         assertThat(actual.getName()).isEqualTo(source.getName());
     }
+
+    @Test
+    public void ignores_method_decorated_with_invalid_is_prefix() {
+        var source = create(InvalidIsPrefix.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, InvalidIsPrefix.class);
+
+        assertThat(actual.isValue()).isNull();
+    }
 }
