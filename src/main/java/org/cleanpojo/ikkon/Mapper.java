@@ -50,33 +50,39 @@ public class Mapper {
     private Object[] resolveArguments(Object source, Constructor<?> constructor)
             throws IllegalAccessException, InvocationTargetException {
 
-        ConstructorProperties constructorProperties = constructor.getAnnotation(ConstructorProperties.class);
-        if (constructorProperties != null) {
-            Parameter[] parameters = constructor.getParameters();
-            String[] names = constructorProperties.value();
-            var arguments = new Object[parameters.length];
-            for (int i = 0; i < parameters.length; i++) {
-                String propertyName = names[i];
-                Method getter = findGetter(source.getClass(), propertyName);
-                Parameter parameter = parameters[i];
-                arguments[i] = getter == null ? null : resolveArgument(source, parameter, getter);
-            }
-
-            return arguments;
-        } else {
-            Parameter[] parameters = constructor.getParameters();
-            var arguments = new Object[parameters.length];
-            for (int i = 0; i < parameters.length; i++) {
-                arguments[i] = resolveArgument(source, parameters[i]);
-            }
-
-            return arguments;
+        String[] names = getParameterNames(constructor);
+        var arguments = new Object[constructor.getParameters().length];
+        for (int i = 0; i < constructor.getParameters().length; i++) {
+            arguments[i] = resolveArgument(source, constructor.getParameters()[i], names[i]);
         }
+
+        return arguments;
     }
 
-    private Object resolveArgument(Object source, Parameter parameter)
+    private static String[] getParameterNames(Constructor<?> constructor) {
+        ConstructorProperties namesProvider = constructor.getAnnotation(ConstructorProperties.class);
+        return namesProvider == null
+            ? extractParameterNames(constructor)
+            : getParameterNamesFromProvider(namesProvider);
+    }
+
+    private static String[] extractParameterNames(Constructor<?> constructor) {
+        Parameter[] parameters = constructor.getParameters();
+        var names = new String[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            names[i] = getParameterName(parameters[i]);
+        }
+
+        return names;
+    }
+
+    private static String[] getParameterNamesFromProvider(ConstructorProperties namesProvider) {
+        return namesProvider.value();
+    }
+
+    private Object resolveArgument(Object source, Parameter parameter,
+            String propertyName)
             throws IllegalAccessException, InvocationTargetException {
-        String propertyName = getParameterName(parameter);
         Method getter = findGetter(source.getClass(), propertyName);
         return getter == null ? null : resolveArgument(source, parameter, getter);
     }
