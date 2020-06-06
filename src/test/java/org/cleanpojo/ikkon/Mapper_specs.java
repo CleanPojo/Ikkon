@@ -214,4 +214,14 @@ public class Mapper_specs {
 
         assertThat(actual.getValue()).isEqualTo((long)0);
     }
+
+    @Test
+    public void sets_unprovided_float_type_parameter_to_default() {
+        var source = create(Immutable.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, HasFloatValueParameter.class);
+
+        assertThat(actual.getValue()).isEqualTo((float)0);
+    }
 }
