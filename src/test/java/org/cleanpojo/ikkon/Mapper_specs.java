@@ -194,4 +194,14 @@ public class Mapper_specs {
 
         assertThat(actual.getValue()).isEqualTo((short)0);
     }
+
+    @Test
+    public void sets_unprovided_int_type_parameter_to_default() {
+        var source = create(Immutable.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, HasIntValueParameter.class);
+
+        assertThat(actual.getValue()).isEqualTo(0);
+    }
 }

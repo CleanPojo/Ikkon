@@ -94,6 +94,8 @@ public class Mapper {
             return (byte)0;
         } else if (type.equals(short.class)) {
             return (short)0;
+        } else if (type.equals(int.class)) {
+            return 0;
         } else if (type.equals(boolean.class)) {
             return false;
         } else {
