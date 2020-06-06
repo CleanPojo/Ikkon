@@ -142,4 +142,15 @@ public class Mapper_specs {
         assertThat(actual).isNotNull();
         assertThat(actual.getName()).isNull();
     }
+
+    @Test
+    public void excepts_get_query_methods_with_parameters() {
+        var source = create(GetMethodWithParameter.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, Immutable.class);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getName()).isNull();
+    }
 }
