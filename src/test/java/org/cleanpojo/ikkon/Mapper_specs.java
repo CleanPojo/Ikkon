@@ -153,4 +153,15 @@ public class Mapper_specs {
         assertThat(actual).isNotNull();
         assertThat(actual.getName()).isNull();
     }
+
+    @Test
+    public void excepts_is_query_methods_with_parameters() {
+        var source = create(IsMethodWithParameter.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, Freezable.class);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.isFrozen()).isFalse();
+    }
 }

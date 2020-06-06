@@ -33,6 +33,16 @@ public class Mapper {
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Constructor<?> constructor = getConstructor(destination);
         Object[] arguments = resolveArguments(source, constructor);
+
+        Parameter[] parameters = constructor.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i].getType().equals(boolean.class)) {
+                if (arguments[i] == null) {
+                    arguments[i] = false;
+                }
+            }
+        }
+
         return destination.cast(constructor.newInstance(arguments));
     }
 

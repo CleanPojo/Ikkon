@@ -27,6 +27,7 @@ final class GetterFinder {
 
     private static boolean isPredicateAccessor(String propertyName, Method method) {
         return method.getName().equalsIgnoreCase("is" + propertyName)
-            && method.getReturnType().equals(boolean.class);
+            && method.getReturnType().equals(boolean.class)
+            && method.getParameterCount() == 0;
     }
 }
