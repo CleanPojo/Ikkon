@@ -25,6 +25,8 @@ public final class Generator {
             return type.cast(randomUUID().toString());
         } else if (type.equals(int.class)) {
             return type.cast(random.nextInt());
+        } else if (type.equals(long.class)) {
+            return createLong();
         } else if (type.equals(boolean.class)) {
             return createBoolean();
         } else if (type.isPrimitive() == false) {
@@ -45,6 +47,11 @@ public final class Generator {
     @SuppressWarnings("unchecked")
     private static <T> T createBoolean() {
         return (T)Boolean.class.cast(random.nextInt() % 2 == 0);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T createLong() {
+        return (T)Long.class.cast(random.nextLong());
     }
 
     public static UUID createUUID() {

@@ -204,4 +204,14 @@ public class Mapper_specs {
 
         assertThat(actual.getValue()).isEqualTo(0);
     }
+
+    @Test
+    public void sets_unprovided_long_type_parameter_to_default() {
+        var source = create(Immutable.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, HasLongValueParameter.class);
+
+        assertThat(actual.getValue()).isEqualTo((long)0);
+    }
 }
