@@ -234,4 +234,14 @@ public class Mapper_specs {
 
         assertThat(actual.getValue()).isEqualTo((double)0);
     }
+
+    @Test
+    public void sets_unprovided_char_type_parameter_to_default() {
+        var source = create(Immutable.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, HasCharValueParameter.class);
+
+        assertThat(actual.getValue()).isEqualTo('\u0000');
+    }
 }

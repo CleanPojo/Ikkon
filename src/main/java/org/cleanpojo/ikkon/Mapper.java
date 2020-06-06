@@ -104,6 +104,8 @@ public class Mapper {
             return (double)0;
         } else if (type.equals(boolean.class)) {
             return false;
+        } else if (type.equals(char.class)) {
+            return (char)0;
         } else {
             return null;
         }
