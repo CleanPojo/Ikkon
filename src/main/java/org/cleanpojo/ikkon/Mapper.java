@@ -108,7 +108,7 @@ public class Mapper {
             : parameterType.equals(List.class)
             ? toList((Iterable<?>)value)
             : isComplexType(parameterType)
-            ? map(value, value.getClass())
+            ? map(value, parameterType)
             : value;
     }
 

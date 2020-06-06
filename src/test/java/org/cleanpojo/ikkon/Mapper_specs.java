@@ -164,4 +164,14 @@ public class Mapper_specs {
         assertThat(actual).isNotNull();
         assertThat(actual.isFrozen()).isFalse();
     }
+
+    @Test
+    public void correctly_converts_property_to_destination_type() {
+        var source = create(ComplexObjectProperty.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, MutableComplexObjectProperty.class);
+
+        assertThat(actual).usingRecursiveComparison().isEqualTo(source);
+    }
 }
