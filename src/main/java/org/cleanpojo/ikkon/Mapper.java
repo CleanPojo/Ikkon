@@ -33,19 +33,6 @@ public class Mapper {
             throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Constructor<?> constructor = getConstructor(destination);
         Object[] arguments = resolveArguments(source, constructor);
-
-        Parameter[] parameters = constructor.getParameters();
-        for (int i = 0; i < parameters.length; i++) {
-            if (arguments[i] == null) {
-                if (parameters[i].getType().equals(byte.class)) {
-                    arguments[i] = (byte)0;
-                }
-                if (parameters[i].getType().equals(boolean.class)) {
-                    arguments[i] = false;
-                }
-            }
-        }
-
         return destination.cast(constructor.newInstance(arguments));
     }
 
@@ -97,11 +84,25 @@ public class Mapper {
             String propertyName)
             throws IllegalAccessException, InvocationTargetException {
         Method getter = GetterFinder.find(propertyName, source.getClass());
-        return getter == null ? null : resolveArgument(source, parameter, getter);
+        return getter == null
+            ? getDefaultValue(parameter.getType())
+            : resolveArgument(source, parameter, getter);
     }
 
-    private Object resolveArgument(Object source, Parameter parameter, Method getter)
+    private Object getDefaultValue(Class<?> type) {
+        if (type.equals(byte.class)) {
+            return (byte)0;
+        } else if (type.equals(boolean.class)) {
+            return false;
+        } else {
+            return null;
+        }
+    }
+
+    private Object resolveArgument(Object source, Parameter parameter,
+            Method getter)
             throws IllegalAccessException, InvocationTargetException {
+
         Class<?> parameterType = parameter.getType();
         Object value = getter.invoke(source);
         return parameterType.equals(Iterable.class)
