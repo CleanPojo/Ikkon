@@ -97,7 +97,7 @@ public final class Generator {
         Class<?> t = Class.class.cast(typeArgument);
         return List.of(create(t), create(t), create(t));
     }
-    
+
     private static <T> void setProperties(T instance, Class<T> type)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         for (Method method : type.getMethods()) {
@@ -106,7 +106,7 @@ public final class Generator {
             }
         }
     }
-    
+
     private static boolean isSetter(Method method) {
         return method.getName().startsWith("set")
             && method.getReturnType().equals(void.class)

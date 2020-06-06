@@ -20,7 +20,8 @@ final class GetterFinder {
     }
 
     private static boolean isGetAccessor(String propertyName, Method method) {
-        return method.getName().equalsIgnoreCase("get" + propertyName);
+        return method.getName().equalsIgnoreCase("get" + propertyName)
+            && method.getReturnType().equals(void.class) == false;
     }
 
     private static boolean isPredicateAccessor(String propertyName, Method method) {

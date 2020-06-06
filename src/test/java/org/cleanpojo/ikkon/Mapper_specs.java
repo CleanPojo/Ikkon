@@ -131,4 +131,15 @@ public class Mapper_specs {
 
         assertThat(actual.isValue()).isNull();
     }
+
+    @Test
+    public void excepts_non_query_get_methods() {
+        var source = create(NonQueryGetMethod.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, Mutable.class);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.getName()).isNull();
+    }
 }
