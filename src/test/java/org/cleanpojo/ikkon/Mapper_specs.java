@@ -174,4 +174,14 @@ public class Mapper_specs {
 
         assertThat(actual).usingRecursiveComparison().isEqualTo(source);
     }
+
+    @Test
+    public void sets_unprovided_byte_type_parameter_to_default() {
+        var source = create(Immutable.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, HasByteValueParameter.class);
+
+        assertThat(actual.getValue()).isEqualTo((byte)0);
+    }
 }

@@ -36,8 +36,11 @@ public class Mapper {
 
         Parameter[] parameters = constructor.getParameters();
         for (int i = 0; i < parameters.length; i++) {
-            if (parameters[i].getType().equals(boolean.class)) {
-                if (arguments[i] == null) {
+            if (arguments[i] == null) {
+                if (parameters[i].getType().equals(byte.class)) {
+                    arguments[i] = (byte)0;
+                }
+                if (parameters[i].getType().equals(boolean.class)) {
                     arguments[i] = false;
                 }
             }
