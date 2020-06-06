@@ -100,6 +100,8 @@ public class Mapper {
             return (long)0;
         } else if (type.equals(float.class)) {
             return (float)0;
+        } else if (type.equals(double.class)) {
+            return (double)0;
         } else if (type.equals(boolean.class)) {
             return false;
         } else {
