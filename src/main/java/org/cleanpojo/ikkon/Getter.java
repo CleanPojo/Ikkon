@@ -1,6 +1,6 @@
 package org.cleanpojo.ikkon;
 
-public interface Getter {
+interface Getter {
 
     GetResult invoke(Object instance);
 }
