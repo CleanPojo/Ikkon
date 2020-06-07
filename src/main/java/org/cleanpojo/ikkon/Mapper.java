@@ -84,9 +84,16 @@ public class Mapper {
             String propertyName)
             throws IllegalAccessException, InvocationTargetException {
         Getter getter = GetterFinder.find(propertyName, source.getClass());
-        return getter == null
-            ? DefaultValue.of(parameter.getType())
-            : resolveArgument(source, parameter, getter);
+        Getter getter2 = GetterFinder.find2(parameter.getType(), propertyName, source.getClass());
+        if (getter == null) {
+            if (getter2 == null) {
+                return DefaultValue.of(parameter.getType());
+            } else {
+                return resolveArgument(source, parameter, getter2);
+            }
+        } else {
+            return resolveArgument(source, parameter, getter);
+        }
     }
 
     private Object resolveArgument(Object source, Parameter parameter, Getter getter) {

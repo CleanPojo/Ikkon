@@ -286,4 +286,16 @@ public class Mapper_specs {
         assertThat(actual.getChildId()).isEqualTo(source.getChild().getId());
         assertThat(actual.getChildName()).isEqualTo(source.getChild().getName());
     }
+
+    @Test
+    public void correctly_unflatten_to_immutable_complex_object() {
+        var source = create(Flattened.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, ComplexObjectProperty.class);
+
+        assertThat(actual.getChild()).isNotNull();
+        assertThat(actual.getChild().getId()).isEqualTo(source.getChildId());
+        assertThat(actual.getChild().getName()).isEqualTo(source.getChildName());
+    }
 }
