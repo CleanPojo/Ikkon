@@ -1,8 +1,8 @@
 package org.cleanpojo.ikkon;
 
-final class DefaultValue {
+interface DefaultValue {
 
-    public static Object of(Class<?> type) {
+    static Object of(Class<?> type) {
         if (type.equals(byte.class)) {
             return (byte)0;
         } else if (type.equals(short.class)) {
