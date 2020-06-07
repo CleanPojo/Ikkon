@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class Mapper {
 
@@ -83,27 +84,33 @@ public class Mapper {
     private Object resolveArgument(Object source, Parameter parameter,
             String propertyName)
             throws IllegalAccessException, InvocationTargetException {
-        Method getter = GetterFinder.find(propertyName, source.getClass());
-        return getter == null
+        Function<Object, TryResult> getter2 = GetterFinder.find(propertyName, source.getClass());
+        return getter2 == null
             ? DefaultValue.of(parameter.getType())
-            : resolveArgument(source, parameter, getter);
+            : resolveArgument(source, parameter, getter2);
     }
 
-    private Object resolveArgument(Object source, Parameter parameter,
-            Method getter)
-            throws IllegalAccessException, InvocationTargetException {
+    private Object resolveArgument(
+        Object source,
+        Parameter parameter,
+        Function<Object, TryResult> getter) {
 
         Class<?> parameterType = parameter.getType();
-        Object value = getter.invoke(source);
-        return parameterType.equals(Iterable.class)
-            ? toIterable((Iterable<?>)value)
-            : parameterType.equals(Collection.class)
-            ? toList((Iterable<?>)value)
-            : parameterType.equals(List.class)
-            ? toList((Iterable<?>)value)
-            : isComplexType(parameterType)
-            ? map(value, parameterType)
-            : value;
+        TryResult result = getter.apply(source);
+        if (result.getException() == null) {
+            Object value = result.getValue();
+            return parameterType.equals(Iterable.class)
+                ? toIterable((Iterable<?>)value)
+                : parameterType.equals(Collection.class)
+                ? toList((Iterable<?>)value)
+                : parameterType.equals(List.class)
+                ? toList((Iterable<?>)value)
+                : isComplexType(parameterType)
+                ? map(value, parameterType)
+                : value;
+        } else {
+            throw new RuntimeException(result.getException());
+        }
     }
 
     private static <T> Iterable<T> toIterable(Iterable<T> iterable) {
@@ -152,10 +159,10 @@ public class Mapper {
     private <T> void setProperty(Object source, T instance, Method setter)
             throws IllegalAccessException, InvocationTargetException {
         String propertyName = setter.getName().substring(3);
-        Method getter = GetterFinder.find(propertyName, source.getClass());
-        if (getter != null) {
+        Function<Object, TryResult> getter2 = GetterFinder.find(propertyName, source.getClass());
+        if (getter2 != null) {
             Parameter parameter = setter.getParameters()[0];
-            setter.invoke(instance, resolveArgument(source, parameter, getter));
+            setter.invoke(instance, resolveArgument(source, parameter, getter2));
         }
     }
 }
