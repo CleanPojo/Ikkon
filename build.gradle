@@ -17,7 +17,7 @@ compileTestJava {
 
 test {
     testLogging {
-        events "passed", "skipped", "failed"
+        events "skipped", "failed"
         showStandardStreams = true
         showCauses true
         showExceptions true
