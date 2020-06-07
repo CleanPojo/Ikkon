@@ -244,4 +244,14 @@ public class Mapper_specs {
 
         assertThat(actual.getValue()).isEqualTo('\u0000');
     }
+
+    @Test
+    public void excepts_query_method_with_set_prefix() {
+        var source = create(Immutable.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, QuerySetMethod.class);
+
+        assertThat(actual.getName()).isNull();
+    }
 }

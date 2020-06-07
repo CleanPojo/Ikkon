@@ -2,7 +2,7 @@ package org.cleanpojo.ikkon.fixtures;
 
 import java.util.UUID;
 
-public class Mutable {
+public class QuerySetMethod {
 
     private UUID id;
     private String name;
@@ -19,7 +19,8 @@ public class Mutable {
         return name;
     }
 
-    public void setName(String name) {
+    public String setName(String name) {
         this.name = name;
+        return name;
     }
 }

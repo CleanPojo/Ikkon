@@ -144,7 +144,8 @@ public class Mapper {
     }
 
     private static boolean isSetter(Method method) {
-        return method.getName().startsWith("set");
+        return method.getName().startsWith("set")
+            && method.getReturnType().equals(void.class);
     }
 
     private <T> void setProperty(Object source, T instance, Method setter)
