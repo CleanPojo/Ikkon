@@ -254,4 +254,14 @@ public class Mapper_specs {
 
         assertThat(actual.getName()).isNull();
     }
+
+    @Test
+    public void excpets_parameterless_set_method() {
+        var source = create(Immutable.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, ParameterlessSetMethod.class);
+
+        assertThat(actual.getName()).isNull();
+    }
 }
