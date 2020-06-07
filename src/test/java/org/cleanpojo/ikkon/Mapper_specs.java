@@ -275,4 +275,15 @@ public class Mapper_specs {
         assertThat(actual.getChildId()).isEqualTo(source.getChild().getId());
         assertThat(actual.getChildName()).isEqualTo(source.getChild().getName());
     }
+
+    @Test
+    public void correctly_flatten_to_mutable_complex_object() {
+        var source = create(ComplexObjectProperty.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, MutableFlattened.class);
+
+        assertThat(actual.getChildId()).isEqualTo(source.getChild().getId());
+        assertThat(actual.getChildName()).isEqualTo(source.getChild().getName());
+    }
 }

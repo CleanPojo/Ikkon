@@ -13,7 +13,7 @@ final class GetterFinder {
             }
 
             if (method.getName().startsWith("get")
-                    && propertyName.startsWith(method.getName().substring(3).toLowerCase())) {
+                    && propertyName.toLowerCase().startsWith(method.getName().substring(3).toLowerCase())) {
                 String propertyName2 = propertyName.substring(method.getName().length() - 3);
                 Class<?> type2 = method.getReturnType();
                 Function<Object, TryResult> getter2 = find(propertyName2, type2);
