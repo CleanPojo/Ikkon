@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
 
 public class Mapper {
 
@@ -84,19 +83,15 @@ public class Mapper {
     private Object resolveArgument(Object source, Parameter parameter,
             String propertyName)
             throws IllegalAccessException, InvocationTargetException {
-        Function<Object, TryResult> getter2 = GetterFinder.find(propertyName, source.getClass());
-        return getter2 == null
+        Getter getter = GetterFinder.find(propertyName, source.getClass());
+        return getter == null
             ? DefaultValue.of(parameter.getType())
-            : resolveArgument(source, parameter, getter2);
+            : resolveArgument(source, parameter, getter);
     }
 
-    private Object resolveArgument(
-        Object source,
-        Parameter parameter,
-        Function<Object, TryResult> getter) {
-
+    private Object resolveArgument(Object source, Parameter parameter, Getter getter) {
         Class<?> parameterType = parameter.getType();
-        TryResult result = getter.apply(source);
+        GetResult result = getter.invoke(source);
         if (result.getException() == null) {
             Object value = result.getValue();
             return parameterType.equals(Iterable.class)
@@ -159,10 +154,10 @@ public class Mapper {
     private <T> void setProperty(Object source, T instance, Method setter)
             throws IllegalAccessException, InvocationTargetException {
         String propertyName = setter.getName().substring(3);
-        Function<Object, TryResult> getter2 = GetterFinder.find(propertyName, source.getClass());
-        if (getter2 != null) {
+        Getter getter = GetterFinder.find(propertyName, source.getClass());
+        if (getter != null) {
             Parameter parameter = setter.getParameters()[0];
-            setter.invoke(instance, resolveArgument(source, parameter, getter2));
+            setter.invoke(instance, resolveArgument(source, parameter, getter));
         }
     }
 }

@@ -1,26 +1,26 @@
 package org.cleanpojo.ikkon;
 
-final class TryResult {
+final class GetResult {
 
     private final Object value;
     private final Exception exception;
 
-    private TryResult(final Object value) {
+    private GetResult(final Object value) {
         this.value = value;
         this.exception = null;
     }
 
-    private TryResult(final Exception exception) {
+    private GetResult(final Exception exception) {
         this.value = null;
         this.exception = exception;
     }
 
-    public static TryResult success(Object value) {
-        return new TryResult(value);
+    public static GetResult success(Object value) {
+        return new GetResult(value);
     }
 
-    public static TryResult failure(Exception exception) {
-        return new TryResult(exception);
+    public static GetResult failure(Exception exception) {
+        return new GetResult(exception);
     }
 
     public Object getValue() {

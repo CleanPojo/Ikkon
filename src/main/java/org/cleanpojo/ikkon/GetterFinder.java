@@ -2,55 +2,63 @@ package org.cleanpojo.ikkon;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.Function;
 
 final class GetterFinder {
 
-    public static Function<Object, TryResult> find(String propertyName, Class<?> type) {
+    public static Getter find(String propertyName, Class<?> type) {
         for (Method method : type.getMethods()) {
             if (isGetter(propertyName, method)) {
                 return generalize(method);
             }
 
-            if (method.getName().startsWith("get")
-                    && propertyName.toLowerCase().startsWith(method.getName().substring(3).toLowerCase())) {
-                String propertyName2 = propertyName.substring(method.getName().length() - 3);
-                Class<?> type2 = method.getReturnType();
-                Function<Object, TryResult> getter2 = find(propertyName2, type2);
-                if (getter2 == null) {
-                    return null;
-                } else {
-                    return instance -> {
-                        Object instance2;
-                        try {
-                            instance2 = method.invoke(instance);
-                        } catch (
-                            IllegalAccessException
-                            | IllegalArgumentException
-                            | InvocationTargetException exception) {
-                            return TryResult.failure(exception);
-                        }
-                        return getter2.apply(instance2);
-                    };
-                }
+            if (isStemAccessor(propertyName, method)) {
+                Method stemAccessor = method;
+                return findLeafAccessor(propertyName, stemAccessor);
             }
         }
 
         return null;
     }
 
-    private static Function<Object, TryResult> generalize(Method getter) {
-        return instance -> invokeGetter(instance, getter);
+    private static boolean isStemAccessor(String propertyName, Method method) {
+        return method.getName().startsWith("get")
+            && propertyName.toLowerCase().startsWith(method.getName().substring(3).toLowerCase());
     }
 
-    private static TryResult invokeGetter(Object instance, Method getter) {
+    private static Getter findLeafAccessor(String propertyName, Method stemAccessor) {
+        String propertyName2 = propertyName.substring(stemAccessor.getName().length() - 3);
+        Class<?> type = stemAccessor.getReturnType();
+        Getter getter = find(propertyName2, type);
+        if (getter == null) {
+            return null;
+        } else {
+            return instance -> {
+                Object instance2;
+                try {
+                    instance2 = stemAccessor.invoke(instance);
+                } catch (
+                    IllegalAccessException
+                    | IllegalArgumentException
+                    | InvocationTargetException exception) {
+                    return GetResult.failure(exception);
+                }
+                return getter.invoke(instance2);
+            };
+        }
+    }
+
+    private static Getter generalize(Method getter) {
+        return instance -> invokeGetterMethod(instance, getter);
+    }
+
+    private static GetResult invokeGetterMethod(Object instance, Method getter) {
         try {
-            return TryResult.success(getter.invoke(instance));
+            return GetResult.success(getter.invoke(instance));
         } catch (
             IllegalAccessException
             | IllegalArgumentException
             | InvocationTargetException exception) {
-            return TryResult.failure(exception);
+            return GetResult.failure(exception);
         }
     }
 
