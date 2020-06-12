@@ -38,7 +38,9 @@ final class UnflatteningGetterSelector implements GetterSelector {
         try {
             final Constructor<?> constructor = resolveConstructor(property.getType());
             final Object[] arguments = resolveArguments(constructor, unflatteningGetters, instance);
-            return GetResult.success(constructor.newInstance(arguments));
+            Object instance2 = constructor.newInstance(arguments);
+            setProperties(instance, property.getName(), instance2);
+            return GetResult.success(instance2);
         } catch (
             NoSuchMethodException
             | InstantiationException
@@ -46,6 +48,33 @@ final class UnflatteningGetterSelector implements GetterSelector {
             | IllegalArgumentException
             | InvocationTargetException exception) {
             return GetResult.failure(exception);
+        }
+    }
+
+    static void setProperties(Object source, String path, Object target)
+            throws IllegalAccessException, InvocationTargetException {
+
+        for (Method method : target.getClass().getMethods()) {
+            if (isSetter(method)) {
+                Method setter = method;
+                setProperty(source, path, target, setter);
+            }
+        }
+    }
+
+    private static boolean isSetter(Method method) {
+        return method.getName().startsWith("set")
+            && method.getReturnType().equals(void.class)
+            && method.getParameterCount() == 1;
+    }
+
+    private static void setProperty(Object source, String path, Object target, Method setter)
+            throws IllegalAccessException, InvocationTargetException {
+
+        var property = new PropertyDescriptor(setter.getParameterTypes()[0], path + setter.getName().substring(3));
+        Getter getter = GetterSelector.instance.select(property, source.getClass());
+        if (getter != null) {
+            setter.invoke(target, ArgumentResolver.resolveArgument(property.getType(), getter, source));
         }
     }
 
