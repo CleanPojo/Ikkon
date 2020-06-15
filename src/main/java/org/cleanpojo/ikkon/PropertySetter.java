@@ -2,13 +2,12 @@ package org.cleanpojo.ikkon;
 
 import static org.cleanpojo.ikkon.ArgumentResolver.resolveArgument;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 interface PropertySetter {
 
     static void setProperties(Object source, Object target)
-            throws IllegalAccessException, InvocationTargetException {
+            throws ReflectiveOperationException {
 
         for (Method method : target.getClass().getMethods()) {
             if (isSetter(method)) {
@@ -25,7 +24,7 @@ interface PropertySetter {
     }
 
     private static void setProperty(Object source, Object target, Method setter)
-            throws IllegalAccessException, InvocationTargetException {
+            throws ReflectiveOperationException {
 
         var property = PropertyDescriptor.fromSetter(setter);
         Getter getter = GetterSelector.instance.select(source, property);

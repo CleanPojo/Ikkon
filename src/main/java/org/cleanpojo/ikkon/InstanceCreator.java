@@ -4,12 +4,11 @@ import static org.cleanpojo.ikkon.ArgumentResolver.resolveArguments;
 import static org.cleanpojo.ikkon.ConstructorResolver.resolveConstructor;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 interface InstanceCreator {
 
     static <T> T createInstance(Object source, Class<T> destination)
-            throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+            throws ReflectiveOperationException {
 
         Constructor<?> constructor = resolveConstructor(destination);
         Object[] arguments = resolveArguments(constructor, source);

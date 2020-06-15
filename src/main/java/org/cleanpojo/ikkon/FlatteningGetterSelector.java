@@ -2,7 +2,6 @@ package org.cleanpojo.ikkon;
 
 import static org.cleanpojo.ikkon.StringFunctions.startsWith;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 final class FlatteningGetterSelector implements GetterSelector {
@@ -26,20 +25,14 @@ final class FlatteningGetterSelector implements GetterSelector {
             && method.getParameterCount() == 0;
     }
 
-    private static GetResult walkWithPath(
+    private static Object walkWithPath(
             Object vertex,
             String propertyName,
-            Method edge) {
+            Method edge)
+            throws ReflectiveOperationException {
 
-        try {
-            Object nextVertex = edge.invoke(vertex);
-            return getSubPathWalker(nextVertex, propertyName, edge).get();
-        } catch (
-            IllegalAccessException
-            | IllegalArgumentException
-            | InvocationTargetException exception) {
-            return GetResult.failure(exception);
-        }
+        Object nextVertex = edge.invoke(vertex);
+        return getSubPathWalker(nextVertex, propertyName, edge).get();
     }
 
     private static Getter getSubPathWalker(Object nextVertex, String propertyName, Method edge) {

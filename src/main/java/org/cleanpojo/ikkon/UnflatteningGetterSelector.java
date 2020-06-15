@@ -5,7 +5,6 @@ import static org.cleanpojo.ikkon.ParameterNameResolver.resolveParameterNames;
 import static org.cleanpojo.ikkon.StringFunctions.startsWith;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,25 +33,18 @@ final class UnflatteningGetterSelector implements GetterSelector {
         return unflatteningGetters;
     }
 
-    private static GetResult unflatten(PropertyDescriptor property, List<Method> unflatteningGetters, Object instance) {
-        try {
-            final Constructor<?> constructor = resolveConstructor(property.getType());
-            final Object[] arguments = resolveArguments(constructor, unflatteningGetters, instance);
-            Object instance2 = constructor.newInstance(arguments);
-            setProperties(instance, property.getName(), instance2);
-            return GetResult.success(instance2);
-        } catch (
-            NoSuchMethodException
-            | InstantiationException
-            | IllegalAccessException
-            | IllegalArgumentException
-            | InvocationTargetException exception) {
-            return GetResult.failure(exception);
-        }
+    private static Object unflatten(PropertyDescriptor property, List<Method> unflatteningGetters, Object instance)
+            throws ReflectiveOperationException,
+            InstantiationException {
+        final Constructor<?> constructor = resolveConstructor(property.getType());
+        final Object[] arguments = resolveArguments(constructor, unflatteningGetters, instance);
+        Object instance2 = constructor.newInstance(arguments);
+        setProperties(instance, property.getName(), instance2);
+        return instance2;
     }
 
     static void setProperties(Object source, String path, Object target)
-            throws IllegalAccessException, InvocationTargetException {
+            throws ReflectiveOperationException {
 
         for (Method method : target.getClass().getMethods()) {
             if (isSetter(method)) {
@@ -69,7 +61,7 @@ final class UnflatteningGetterSelector implements GetterSelector {
     }
 
     private static void setProperty(Object source, String path, Object target, Method setter)
-            throws IllegalAccessException, InvocationTargetException {
+            throws ReflectiveOperationException {
 
         var property = new PropertyDescriptor(setter.getParameterTypes()[0], path + setter.getName().substring(3));
         Getter getter = GetterSelector.instance.select(source, property);
@@ -82,7 +74,7 @@ final class UnflatteningGetterSelector implements GetterSelector {
             final Constructor<?> constructor,
             final List<Method> unflatteningGetters,
             final Object instance)
-            throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+            throws ReflectiveOperationException {
 
         final String[] parameterNames = resolveParameterNames(constructor);
         final var arguments = new Object[constructor.getParameters().length];

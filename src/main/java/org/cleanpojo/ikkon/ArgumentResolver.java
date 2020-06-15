@@ -3,7 +3,6 @@ package org.cleanpojo.ikkon;
 import static org.cleanpojo.ikkon.ParameterNameResolver.resolveParameterNames;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,7 +12,7 @@ import java.util.UUID;
 interface ArgumentResolver {
 
     static Object[] resolveArguments(Constructor<?> constructor, Object source)
-            throws IllegalAccessException, InvocationTargetException {
+            throws ReflectiveOperationException {
 
         String[] parameterNames = resolveParameterNames(constructor);
         var arguments = new Object[constructor.getParameterCount()];
@@ -28,7 +27,7 @@ interface ArgumentResolver {
             Class<?> parameterType,
             String parameterName,
             Object source)
-            throws IllegalAccessException, InvocationTargetException {
+            throws ReflectiveOperationException {
 
         var property = new PropertyDescriptor(parameterType, parameterName);
         Getter getter = GetterSelector.instance.select(source, property);
@@ -37,15 +36,9 @@ interface ArgumentResolver {
             : resolveArgument(parameterType, getter);
     }
 
-    static Object resolveArgument(Class<?> parameterType, Getter getter) {
-        GetResult result = getter.get();
-
-        Exception exception = result.getException();
-        if (exception != null) {
-            throw new RuntimeException(exception);
-        }
-
-        return refineValue(parameterType, result.getValue());
+    static Object resolveArgument(Class<?> parameterType, Getter getter)
+            throws ReflectiveOperationException {
+        return refineValue(parameterType, getter.get());
     }
 
     private static Object refineValue(Class<?> parameterType, Object value) {
