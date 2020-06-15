@@ -28,9 +28,9 @@ interface PropertySetter {
             throws IllegalAccessException, InvocationTargetException {
 
         var property = PropertyDescriptor.fromSetter(setter);
-        Getter getter = GetterSelector.instance.select(property, source.getClass());
+        Getter getter = GetterSelector.instance.select(source, property);
         if (getter != null) {
-            setter.invoke(target, resolveArgument(property.getType(), getter, source));
+            setter.invoke(target, resolveArgument(property.getType(), getter));
         }
     }
 }

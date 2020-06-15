@@ -5,12 +5,12 @@ import java.lang.reflect.Method;
 
 interface Getter {
 
-    GetResult invoke(Object instance);
+    GetResult get();
 
-    static Getter fromMethod(Method getterMethod) {
-        return instance -> {
+    static Getter transpose(Method g, Object x) {
+        return () -> {
             try {
-                return GetResult.success(getterMethod.invoke(instance));
+                return GetResult.success(g.invoke(x));
             } catch (
                 IllegalAccessException
                 | IllegalArgumentException

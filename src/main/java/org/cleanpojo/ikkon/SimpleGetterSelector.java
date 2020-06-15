@@ -1,14 +1,16 @@
 package org.cleanpojo.ikkon;
 
+import static org.cleanpojo.ikkon.Getter.transpose;
+
 import java.lang.reflect.Method;
 
 final class SimpleGetterSelector implements GetterSelector {
 
     @Override
-    public Getter select(PropertyDescriptor property, Class<?> source) {
-        for (Method method : source.getMethods()) {
+    public Getter select(Object source, PropertyDescriptor property) {
+        for (Method method : source.getClass().getMethods()) {
             if (isGetter(property.getName(), method)) {
-                return Getter.fromMethod(method);
+                return transpose(method, source);
             }
         }
 

@@ -14,13 +14,13 @@ import java.util.List;
 final class UnflatteningGetterSelector implements GetterSelector {
 
     @Override
-    public Getter select(PropertyDescriptor property, Class<?> source) {
+    public Getter select(Object source, PropertyDescriptor property) {
         if (property.getType().equals(String.class)) {
             return null;
         }
 
-        final List<Method> unflatteningGetters = getUnflatteningGetters(property, source);
-        return unflatteningGetters.size() == 0 ? null : instance -> unflatten(property, unflatteningGetters, instance);
+        final List<Method> unflatteningGetters = getUnflatteningGetters(property, source.getClass());
+        return unflatteningGetters.size() == 0 ? null : () -> unflatten(property, unflatteningGetters, source);
     }
 
     private static List<Method> getUnflatteningGetters(PropertyDescriptor property, Class<?> source) {
@@ -72,9 +72,9 @@ final class UnflatteningGetterSelector implements GetterSelector {
             throws IllegalAccessException, InvocationTargetException {
 
         var property = new PropertyDescriptor(setter.getParameterTypes()[0], path + setter.getName().substring(3));
-        Getter getter = GetterSelector.instance.select(property, source.getClass());
+        Getter getter = GetterSelector.instance.select(source, property);
         if (getter != null) {
-            setter.invoke(target, ArgumentResolver.resolveArgument(property.getType(), getter, source));
+            setter.invoke(target, ArgumentResolver.resolveArgument(property.getType(), getter));
         }
     }
 

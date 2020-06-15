@@ -8,10 +8,10 @@ import java.lang.reflect.Method;
 final class FlatteningGetterSelector implements GetterSelector {
 
     @Override
-    public Getter select(PropertyDescriptor property, Class<?> source) {
-        for (Method method : source.getMethods()) {
+    public Getter select(Object source, PropertyDescriptor property) {
+        for (Method method : source.getClass().getMethods()) {
             if (isEdge(property.getName(), method)) {
-                return buildWalker(property.getName(), method);
+                return () -> walkWithPath(source, property.getName(), method);
             }
         }
 
@@ -26,10 +26,6 @@ final class FlatteningGetterSelector implements GetterSelector {
             && method.getParameterCount() == 0;
     }
 
-    private static Getter buildWalker(String propertyName, Method edge) {
-        return vertex -> walkWithPath(vertex, propertyName, edge);
-    }
-
     private static GetResult walkWithPath(
             Object vertex,
             String propertyName,
@@ -37,7 +33,7 @@ final class FlatteningGetterSelector implements GetterSelector {
 
         try {
             Object nextVertex = edge.invoke(vertex);
-            return getSubPathWalker(propertyName, edge).invoke(nextVertex);
+            return getSubPathWalker(nextVertex, propertyName, edge).get();
         } catch (
             IllegalAccessException
             | IllegalArgumentException
@@ -46,12 +42,9 @@ final class FlatteningGetterSelector implements GetterSelector {
         }
     }
 
-    private static Getter getSubPathWalker(String propertyName, Method edge) {
-        return GetterSelector.instance.select(
-            new PropertyDescriptor(
-                Object.class,
-                trimEdgePath(propertyName, edge)),
-            edge.getReturnType());
+    private static Getter getSubPathWalker(Object nextVertex, String propertyName, Method edge) {
+        var property = new PropertyDescriptor(Object.class, trimEdgePath(propertyName, edge));
+        return GetterSelector.instance.select(nextVertex, property);
     }
 
     private static String trimEdgePath(String propertyName, Method edge) {

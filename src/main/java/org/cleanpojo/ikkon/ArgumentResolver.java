@@ -31,14 +31,14 @@ interface ArgumentResolver {
             throws IllegalAccessException, InvocationTargetException {
 
         var property = new PropertyDescriptor(parameterType, parameterName);
-        Getter getter = GetterSelector.instance.select(property, source.getClass());
+        Getter getter = GetterSelector.instance.select(source, property);
         return getter == null
             ? DefaultValue.of(parameterType)
-            : resolveArgument(parameterType, getter, source);
+            : resolveArgument(parameterType, getter);
     }
 
-    static Object resolveArgument(Class<?> parameterType, Getter getter, Object source) {
-        GetResult result = getter.invoke(source);
+    static Object resolveArgument(Class<?> parameterType, Getter getter) {
+        GetResult result = getter.get();
 
         Exception exception = result.getException();
         if (exception != null) {

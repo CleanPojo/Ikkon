@@ -2,7 +2,7 @@ package org.cleanpojo.ikkon;
 
 interface GetterSelector {
 
-    Getter select(PropertyDescriptor property, Class<?> source);
+    Getter select(Object source, PropertyDescriptor property);
 
     static GetterSelector instance = new CompositeGetterSelector(
         new SimpleGetterSelector(),
