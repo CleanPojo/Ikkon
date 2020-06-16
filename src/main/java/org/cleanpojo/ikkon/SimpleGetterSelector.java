@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 final class SimpleGetterSelector implements GetterSelector {
 
     @Override
-    public Getter select(Object source, PropertyDescriptor property) {
+    public Getter select(Object source, PropertyHint property) {
         for (Method method : source.getClass().getMethods()) {
             if (isGetter(property.getName(), method)) {
                 return transpose(method, source);

@@ -6,13 +6,20 @@ import java.lang.reflect.Method;
 
 interface PropertySetter {
 
-    static void setProperties(Object source, Object target)
+    static void setProperties(Object target, Object source)
+            throws ReflectiveOperationException {
+
+        String pathToSource = "";
+        setProperties(target, pathToSource, source);
+    }
+
+    static void setProperties(Object target, String pathToSource, Object source)
             throws ReflectiveOperationException {
 
         for (Method method : target.getClass().getMethods()) {
             if (isSetter(method)) {
                 Method setter = method;
-                setProperty(source, target, setter);
+                setProperty(target, setter, pathToSource, source);
             }
         }
     }
@@ -23,11 +30,19 @@ interface PropertySetter {
             && method.getParameterCount() == 1;
     }
 
-    private static void setProperty(Object source, Object target, Method setter)
+    static void setProperty(
+            Object target,
+            Method setter,
+            String pathToSource,
+            Object source)
             throws ReflectiveOperationException {
 
-        var property = PropertyDescriptor.fromSetter(setter);
+        var property = new PropertyHint(
+            setter.getParameterTypes()[0],
+            pathToSource + setter.getName().substring(3));
+
         Getter getter = GetterSelector.instance.select(source, property);
+
         if (getter != null) {
             setter.invoke(target, resolveArgument(property.getType(), getter));
         }

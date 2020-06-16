@@ -29,7 +29,7 @@ interface ArgumentResolver {
             Object source)
             throws ReflectiveOperationException {
 
-        var property = new PropertyDescriptor(parameterType, parameterName);
+        var property = new PropertyHint(parameterType, parameterName);
         Getter getter = GetterSelector.instance.select(source, property);
         return getter == null
             ? DefaultValue.of(parameterType)

@@ -11,7 +11,7 @@ final class CompositeGetterSelector implements GetterSelector {
     }
 
     @Override
-    public Getter select(Object source, PropertyDescriptor property) {
+    public Getter select(Object source, PropertyHint property) {
         for (GetterSelector selector : selectors) {
             Getter getter = selector.select(source, property);
             if (getter != null) {

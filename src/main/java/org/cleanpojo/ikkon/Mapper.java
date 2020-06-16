@@ -8,7 +8,7 @@ public class Mapper {
     public <T> T map(Object source, Class<T> destination) {
         try {
             T instance = createInstance(source, destination);
-            setProperties(source, instance);
+            setProperties(instance, source);
             return instance;
         } catch (ReflectiveOperationException exception) {
             throw new RuntimeException(exception);

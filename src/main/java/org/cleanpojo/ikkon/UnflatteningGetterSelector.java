@@ -2,6 +2,8 @@ package org.cleanpojo.ikkon;
 
 import static org.cleanpojo.ikkon.ConstructorResolver.resolveConstructor;
 import static org.cleanpojo.ikkon.ParameterNameResolver.resolveParameterNames;
+import static org.cleanpojo.ikkon.PropertySetter.setProperties;
+import static org.cleanpojo.ikkon.StringFunctions.endsWith;
 import static org.cleanpojo.ikkon.StringFunctions.startsWith;
 
 import java.lang.reflect.Constructor;
@@ -9,82 +11,66 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: Refactor internal design
 final class UnflatteningGetterSelector implements GetterSelector {
 
     @Override
-    public Getter select(Object source, PropertyDescriptor property) {
+    public Getter select(Object source, PropertyHint property) {
         if (property.getType().equals(String.class)) {
             return null;
         }
 
-        final List<Method> unflatteningGetters = getUnflatteningGetters(property, source.getClass());
-        return unflatteningGetters.size() == 0 ? null : () -> unflatten(property, unflatteningGetters, source);
+        List<Method> getters = getGetters(property, source.getClass());
+
+        if (getters.size() == 0) {
+            return null;
+
+        }
+
+        return () -> unflattenTo(property, source, getters);
     }
 
-    private static List<Method> getUnflatteningGetters(PropertyDescriptor property, Class<?> source) {
+    private static List<Method> getGetters(
+            PropertyHint property, Class<?> source) {
+
         String prefix = "get" + property.getName();
-        var unflatteningGetters = new ArrayList<Method>();
+        var getters = new ArrayList<Method>();
         for (Method method : source.getMethods()) {
             if (startsWith(method.getName(), prefix)) {
-                unflatteningGetters.add(method);
+                getters.add(method);
             }
         }
-        return unflatteningGetters;
+
+        return getters;
     }
 
-    private static Object unflatten(PropertyDescriptor property, List<Method> unflatteningGetters, Object instance)
-            throws ReflectiveOperationException,
-            InstantiationException {
-        final Constructor<?> constructor = resolveConstructor(property.getType());
-        final Object[] arguments = resolveArguments(constructor, unflatteningGetters, instance);
-        Object instance2 = constructor.newInstance(arguments);
-        setProperties(instance, property.getName(), instance2);
-        return instance2;
-    }
-
-    static void setProperties(Object source, String path, Object target)
+    private static Object unflattenTo(
+            PropertyHint property,
+            Object source,
+            List<Method> getters)
             throws ReflectiveOperationException {
 
-        for (Method method : target.getClass().getMethods()) {
-            if (isSetter(method)) {
-                Method setter = method;
-                setProperty(source, path, target, setter);
-            }
-        }
+        Constructor<?> constructor = resolveConstructor(property.getType());
+        Object[] arguments = resolveArgumentsOf(constructor, source, getters);
+        Object instance = constructor.newInstance(arguments);
+        setProperties(instance, property.getName(), source);
+        return instance;
     }
 
-    private static boolean isSetter(Method method) {
-        return method.getName().startsWith("set")
-            && method.getReturnType().equals(void.class)
-            && method.getParameterCount() == 1;
-    }
-
-    private static void setProperty(Object source, String path, Object target, Method setter)
+    private static Object[] resolveArgumentsOf(
+            Constructor<?> constructor,
+            Object source,
+            List<Method> getters)
             throws ReflectiveOperationException {
 
-        var property = new PropertyDescriptor(setter.getParameterTypes()[0], path + setter.getName().substring(3));
-        Getter getter = GetterSelector.instance.select(source, property);
-        if (getter != null) {
-            setter.invoke(target, ArgumentResolver.resolveArgument(property.getType(), getter));
-        }
-    }
+        String[] parameterNames = resolveParameterNames(constructor);
+        var arguments = new Object[constructor.getParameterCount()];
 
-    private static Object[] resolveArguments(
-            final Constructor<?> constructor,
-            final List<Method> unflatteningGetters,
-            final Object instance)
-            throws ReflectiveOperationException {
+        for (int i = 0; i < arguments.length; i++) {
+            String parameterName = parameterNames[i];
 
-        final String[] parameterNames = resolveParameterNames(constructor);
-        final var arguments = new Object[constructor.getParameters().length];
-
-        for (int i = 0; i < constructor.getParameters().length; i++) {
-            final String parameterName = parameterNames[i];
-
-            for (final Method method : unflatteningGetters) {
-                if (method.getName().toLowerCase().endsWith(parameterName)) {
-                    arguments[i] = method.invoke(instance);
+            for (Method getter : getters) {
+                if (endsWith(getter.getName(), parameterName)) {
+                    arguments[i] = getter.invoke(source);
                 }
             }
         }
