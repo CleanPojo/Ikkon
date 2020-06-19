@@ -66,17 +66,42 @@ final class UnflatteningGetterSelector implements GetterSelector {
         var arguments = new Object[constructor.getParameterCount()];
 
         for (int i = 0; i < arguments.length; i++) {
-            String parameterName = parameterNames[i];
-
-            for (Method getter : getters) {
-                if (getter.getName().equalsIgnoreCase("get" + property.getName() + parameterName)) {
-                    arguments[i] = getter.invoke(source);
-                } else if (startsWith(getter.getName(), "get" + property.getName() + parameterName)) {
-                    arguments[i] = unflattenTo(new PropertyHint(constructor.getParameterTypes()[i], property.getName() + parameterName), source, getters);
-                }
-            }
+            Class<?> subPropertyType = constructor.getParameterTypes()[i];
+            String subPropertyName = property.getName() + parameterNames[i];
+            PropertyHint subProperty = new PropertyHint(subPropertyType, subPropertyName);
+            arguments[i] = resolveArgument(subProperty, source, getters);
         }
 
         return arguments;
+    }
+
+    private static Object resolveArgument(
+            PropertyHint property, Object source, List<Method> getters)
+            throws ReflectiveOperationException {
+
+        Object argument = null;
+
+        argument = tryMap(property, source, getters);
+
+        if (argument == null) {
+            argument = unflattenTo(property, source, getters);
+        }
+
+        return argument;
+    }
+
+    private static Object tryMap(
+            PropertyHint property, Object source, List<Method> getters)
+            throws ReflectiveOperationException {
+
+        String getterName = "get" + property.getName();
+
+        for (Method getter : getters) {
+            if (getter.getName().equalsIgnoreCase(getterName)) {
+                return getter.invoke(source);
+            }
+        }
+
+        return null;
     }
 }
