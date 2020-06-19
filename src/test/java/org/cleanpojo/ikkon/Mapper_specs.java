@@ -310,4 +310,17 @@ public class Mapper_specs {
         assertThat(actual.getChild().getId()).isEqualTo(source.getChildId());
         assertThat(actual.getChild().getName()).isEqualTo(source.getChildName());
     }
+
+    @Test
+    public void correctly_unflatten_to_deep_immutable_complex_object() {
+        var source = create(DeepFlattened.class);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, DeepImmutableComplexObject.class);
+
+        assertThat(actual.getId()).isEqualTo(source.getId());
+        assertThat(actual.getName()).isEqualTo(source.getName());
+        assertThat(actual.getChild().getChild().getId()).isEqualTo(source.getChildChildId());
+        assertThat(actual.getChild().getChild().getName()).isEqualTo(source.getChildChildName());
+    }
 }
