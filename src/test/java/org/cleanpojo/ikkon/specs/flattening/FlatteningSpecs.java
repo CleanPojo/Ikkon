@@ -47,6 +47,29 @@ public class FlatteningSpecs {
     }
 
     @Test
+    public void correctly_flatten_deep_immutable_complex_object() {
+        // Arrange
+        var source = create(ImmutablePaymentModel.class);
+        var sut = new Mapper();
+
+        // Act
+        var actual = sut.map(source, ImmutablePaymentRecord.class);
+
+        // Assert
+        assertThat(actual.getId()).isEqualTo(source.getId());
+        assertThat(actual.getPaymentMethod()).isEqualTo(source.getPaymentMethod());
+
+        ImmutableOrderModel order = source.getOrder();
+        assertThat(actual.getOrderId()).isEqualTo(order.getId());
+
+        ImmutableAddressModel shippingAddress = order.getShippingAddress();
+        assertThat(actual.getOrderShippingAddressCountry()).isEqualTo(shippingAddress.getCountry());
+        assertThat(actual.getOrderShippingAddressState()).isEqualTo(shippingAddress.getState());
+        assertThat(actual.getOrderShippingAddressCity()).isEqualTo(shippingAddress.getCity());
+        assertThat(actual.getOrderShippingAddressZipCode()).isEqualTo(shippingAddress.getZipCode());
+    }
+
+    @Test
     public void correctly_unflatten_to_immutable_complex_object() {
         // Arrange
         var source = create(ImmutableOrderRecord.class);
