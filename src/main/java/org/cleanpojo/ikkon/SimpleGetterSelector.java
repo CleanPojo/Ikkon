@@ -8,6 +8,10 @@ final class SimpleGetterSelector implements GetterSelector {
 
     @Override
     public Getter select(Object source, PropertyHint property) {
+        if (source == null) {
+            return null;
+        }
+
         for (Method method : source.getClass().getMethods()) {
             if (isGetter(property.getName(), method)) {
                 return transpose(method, source);

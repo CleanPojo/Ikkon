@@ -3,6 +3,8 @@ package org.cleanpojo.ikkon.specs.flattening;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.cleanpojo.ikkon.specs.Generator.create;
 
+import java.util.UUID;
+
 import org.cleanpojo.ikkon.Mapper;
 import org.junit.Test;
 
@@ -25,6 +27,19 @@ public class FlatteningSpecs {
         assertThat(actual.getShippingAddressState()).isEqualTo(shippingAddress.getState());
         assertThat(actual.getShippingAddressCity()).isEqualTo(shippingAddress.getCity());
         assertThat(actual.getShippingAddressZipCode()).isEqualTo(shippingAddress.getZipCode());
+    }
+
+    @Test
+    public void correctly_flatten_null_to_immutable_complex_object() {
+        var source = new ImmutableOrderModel(UUID.randomUUID(), null);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, ImmutableOrderRecord.class);
+
+        assertThat(actual.getShippingAddressCountry()).isNull();
+        assertThat(actual.getShippingAddressState()).isNull();
+        assertThat(actual.getShippingAddressCity()).isNull();
+        assertThat(actual.getShippingAddressZipCode()).isNull();
     }
 
     @Test

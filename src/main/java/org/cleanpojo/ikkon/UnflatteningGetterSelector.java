@@ -14,6 +14,10 @@ final class UnflatteningGetterSelector implements GetterSelector {
 
     @Override
     public Getter select(Object source, PropertyHint property) {
+        if (source == null) {
+            return null;
+        }
+
         if (property.getType().equals(String.class)) {
             return null;
         }

@@ -8,6 +8,10 @@ final class FlatteningGetterSelector implements GetterSelector {
 
     @Override
     public Getter select(Object source, PropertyHint property) {
+        if (source == null) {
+            return null;
+        }
+
         for (Method method : source.getClass().getMethods()) {
             if (isEdge(property.getName(), method)) {
                 return () -> walkWithPath(source, property.getName(), method);
@@ -32,7 +36,8 @@ final class FlatteningGetterSelector implements GetterSelector {
             throws ReflectiveOperationException {
 
         Object nextVertex = edge.invoke(vertex);
-        return getSubPathWalker(nextVertex, propertyName, edge).get();
+        Getter subPathWalker = getSubPathWalker(nextVertex, propertyName, edge);
+        return subPathWalker == null ? null : subPathWalker.get();
     }
 
     private static Getter getSubPathWalker(Object nextVertex, String propertyName, Method edge) {
