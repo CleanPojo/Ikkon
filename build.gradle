@@ -1,5 +1,7 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
+    id 'signing'
 }
 
 repositories {
@@ -24,4 +26,61 @@ test {
         showStackTraces true
         exceptionFormat 'full'
     }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    repositories {
+        maven {
+            name "OSSRH"
+            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username System.getenv("MAVEN_USERNAME")
+                password System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
+
+    publications {
+        maven(MavenPublication) {
+            groupId 'io.github.cleanpojo'
+            artifactId 'ikkon'
+            version '0.0.2'
+            from components.java
+            pom {
+                name = "Ikkon"
+                description = "Ikkon is convention based object mapping tool."
+                url = "https://github.com/CleanPojo/Ikkon"
+                licenses {
+                    license {
+                        name = "MIT License"
+                        url = "https://github.com/CleanPojo/Ikkon/blob/master/LICENSE"
+                    }
+                }
+                developers {
+                    developer {
+                        id = "gyuwon"
+                        name = "Yi Gyuwon"
+                        email = "gyuwon@live.com"
+                    }
+                }
+                scm {
+                    connection = "https://github.com/CleanPojo/Ikkon.git"
+                    developerConnection = "https://github.com/CleanPojo/Ikkon.git"
+                    url = "https://github.com/CleanPojo/Ikkon"
+                }
+            }
+        }
+    }
+}
+
+signing {
+    def signingKey = System.getenv("SIGNING_KEY")
+    def signingPassword = System.getenv("SIGNING_PASSWORD")
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.maven
 }
