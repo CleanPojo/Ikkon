@@ -2,7 +2,33 @@
 
 Ikkon is convention based object mapping tool.
 
+![CI](https://github.com/CleanPojo/Ikkon/workflows/CI/badge.svg) ![Publish](https://github.com/CleanPojo/Ikkon/workflows/Publish/badge.svg)
+
 > [Images of Ikkon](https://media.comicbook.com/2018/08/images-of-ikonn-1128198.jpeg)
+
+> Please refer to [this issue](https://github.com/redhat-developer/vscode-java/issues/666) to pass all tests.
+
+---
+
+## Install
+
+### Maven
+
+```xml
+<dependency>
+  <groupId>io.github.cleanpojo</groupId>
+  <artifactId>ikkon</artifactId>
+  <version>0.0.2</version>
+</dependency>
+```
+
+### Gradle
+
+```groovy
+implementation 'io.github.cleanpojo:ikkon:0.0.2'
+```
+
+---
 
 ## Features
 
