@@ -2,6 +2,8 @@ package org.cleanpojo.ikkon.specs.deeptree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.cleanpojo.ikkon.Mapper;
 import org.cleanpojo.ikkon.specs.Generator;
 import org.junit.Test;
@@ -24,5 +26,15 @@ public class DeepTreeSpecs {
             .isNotSameAs(source.getShippingAddress())
             .usingRecursiveComparison()
             .isEqualTo(source.getShippingAddress());
+    }
+
+    @Test
+    public void correctly_maps_null_value_of_complex_object_property() {
+        var source = new Order(UUID.randomUUID(), null);
+        var sut = new Mapper();
+
+        var actual = sut.map(source, Order.class);
+
+        assertThat(actual.getShippingAddress()).isNull();
     }
 }
