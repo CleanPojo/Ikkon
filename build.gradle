@@ -49,7 +49,7 @@ publishing {
         maven(MavenPublication) {
             groupId 'io.github.cleanpojo'
             artifactId 'ikkon'
-            version '0.0.2'
+            version '0.0.3'
             from components.java
             pom {
                 name = "Ikkon"
