@@ -25,7 +25,7 @@ Ikkon is convention based object mapping tool.
 ### Gradle
 
 ```groovy
-implementation 'io.github.cleanpojo:ikkon:0.0.2'
+implementation 'io.github.cleanpojo:ikkon:0.0.3'
 ```
 
 ---
